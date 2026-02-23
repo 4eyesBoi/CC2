@@ -1,0 +1,185 @@
+/* ====== ESTILO LIMPIO - TEMA CLARO ====== */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: #ffffff;
+  color: #111111;
+}
+
+/* ====== NAVBAR ====== */
+.navbar {
+  background: linear-gradient(90deg, #000000, #111111);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  padding: 0 40px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+.menu > li {
+  position: relative;
+}
+.menu > li > a {
+  display: block;
+  padding: 18px 25px;
+  color: #f1f1f1;
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+.menu > li > a:hover {
+  background-color: #1f1f1f;
+  color: #00d4ff;
+}
+
+/* ====== SUBMENÚ ====== */
+.submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #ffffff;
+  min-width: 220px;
+  list-style: none;
+  padding: 10px 0;
+  margin: 0;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  display: none;
+  border: 1px solid #e6e6e6;
+}
+.submenu li a {
+  display: block;
+  padding: 12px 20px;
+  color: #333333;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.25s ease;
+}
+.submenu li a:hover {
+  background-color: #f3f9fb;
+  color: #0077a3;
+  padding-left: 26px;
+}
+
+/* Mostrar submenu */
+.menu li:hover .submenu {
+  display: block;
+}
+
+/* ====== CONTENIDO ====== */
+.contenido {
+  padding: 60px;
+  text-align: center;
+  margin-top: 75px;
+}
+.titulo {
+  font-size: 40px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: #0077a3;
+}
+.subtitulo {
+  color: #666666;
+  margin-top: 10px;
+}
+
+/* Controles para las páginas de búsqueda */
+.control-panel {
+  margin-top: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.control-panel label{
+  font-weight: 500;
+  color: #333333;
+}
+.control-panel select,
+.control-panel input{
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Botón Aceptar */
+#accept-btn {
+  padding: 8px 16px;
+  background-color: #0077a3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+#accept-btn:hover {
+  background-color: #005580;
+}
+
+/* Casillas del arreglo */
+.array-box {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #0077a3;
+  background-color: #e9f8ff;
+  border-radius: 4px;
+  font-weight: 500;
+  color: #0077a3;
+  font-size: 12px;
+}
+
+/* Inputs para datos en el arreglo */
+.array-input {
+  width: 60px;
+  padding: 6px 8px;
+  border: 1px solid #0077a3;
+  border-radius: 4px;
+  background-color: #ffffff;
+  font-size: 13px;
+  text-align: center;
+}
+.array-input:focus {
+  outline: none;
+  border-color: #005580;
+  box-shadow: 0 0 4px rgba(0, 119, 163, 0.3);
+}
+
+/* Input dentro de cada casilla y botón eliminar */
+.cell-input {
+  width: 72px;
+  padding: 6px 8px;
+  border: 1px solid #0077a3;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.cell-input:focus {
+  outline: none;
+  border-color: #005580;
+  box-shadow: 0 0 4px rgba(0, 119, 163, 0.25);
+}
+.cell-delete-btn {
+  padding: 4px 8px;
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.cell-delete-btn:hover {
+  background: #b02a37;
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ciencias de la computacion II</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<!-- ====== MENÚ ====== -->
+<nav class="navbar">
+    <ul class="menu">
+
+        <!-- Busquedas -->
+        <li>
+            <a href="#">Busquedas</a>
+            <ul class="submenu">
+                <li><a th:href="@{/busquedas/lineal}">Lineal</a></li>
+                <li><a th:href="@{/busquedas/binaria}">Binaria</a></li>
+                <li><a th:href="@{/busquedas/hash}">Funciones Hash</a></li>
+            </ul>
+        </li>
+
+        <!-- Grafos -->
+        <li>
+            <a href="#">Grafos</a>
+            <ul class="submenu">
+                <li><a th:href="@{/grafos}">Ir a Grafos</a></li>
+            </ul>
+        </li>
+
+    </ul>
+</nav>
+
+<!-- ====== CONTENIDO ====== -->
+<div class="contenido">
+    <div class="titulo">Ciencias de la computacion II</div>
+    <div class="subtitulo">
+        Selecciona una opción del menú para comenzar.
+    </div>
+</div>
+
+</body>
+</html>
