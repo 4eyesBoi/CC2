@@ -2,75 +2,520 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Menú Elegante</title>
+    <title>Ciencias de la Computación 2</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
 
 <div th:fragment="header">
+    <!-- ====== TÍTULO PRINCIPAL ====== -->
+    <div class="header-principal">
+        <h1 class="titulo-principal">Ciencias de la Computación 2</h1>
+    </div>
+
     <!-- ====== MENÚ ====== -->
     <nav class="navbar">
         <ul class="menu">
-
-            <!-- Opción 1 -->
-            <li>
-                <a href="#">Crear</a>
-                <ul class="submenu">
-                    <li><a th:href="@{/arreglo}">Arreglo</a></li>
-                    <li><a th:href="@{/lista}">Lista</a></li>
-                    <li><a th:href="@{/arbol}">Árbol</a></li>
-                    <li><a th:href="@{/pilas}">Pilas</a></li>
-                    <li><a th:href="@{/colas}">Colas</a></li>
-                </ul>
-            </li>
-
-            <!-- Opción 2 -->
-            <li>
-                <a href="#">Sección 2</a>
-                <ul class="submenu">
-                    <li><a th:href="@{/usuarios/lista}">Sub-Sección 1</a></li>
-                    <li><a th:href="@{/usuarios/crear}">Sub-Sección 2</a></li>
-                    <li><a th:href="@{/usuarios/roles}">Sub-Sección 3</a></li>
-                    <li><a th:href="@{/usuarios/permisos}">Sub-Sección 4</a></li>
-                    <li><a th:href="@{/usuarios/reportes}">Sub-Sección 5</a></li>
-                </ul>
-            </li>
-
-            <!-- Opción 3 -->
-            <li>
-                <a href="#">Sección 3</a>
-                <ul class="submenu">
-                    <li><a th:href="@{/servicios/activos}">Sub-Sección 1</a></li>
-                    <li><a th:href="@{/servicios/inactivos}">Sub-Sección 2</a></li>
-                    <li><a th:href="@{/servicios/nuevo}">Sub-Sección 3</a></li>
-                    <li><a th:href="@{/servicios/config}">Sub-Sección 4</a></li>
-                    <li><a th:href="@{/servicios/logs}">Sub-Sección 5</a></li>
-                </ul>
-            </li>
-
-            <!-- Opción 4 -->
-            <li>
-                <a href="#">Sección 4</a>
-                <ul class="submenu">
-                    <li><a th:href="@{/config/general}">Sub-Sección 1</a></li>
-                    <li><a th:href="@{/config/seguridad}">Sub-Sección 2</a></li>
-                    <li><a th:href="@{/config/notificaciones}">Sub-Sección 3</a></li>
-                    <li><a th:href="@{/config/integraciones}">Sub-Sección 4</a></li>
-                    <li><a th:href="@{/config/auditoria}">Sub-Sección 5</a></li>
-                </ul>
-            </li>
-
+            <li><a href="#" class="menu-item" data-estructura="lineal">Lineal</a></li>
+            <li><a href="#" class="menu-item" data-estructura="binaria">Binaria</a></li>
+            <li><a href="#" class="menu-item" data-estructura="arboles-digitales">Árboles Digitales</a></li>
+            <li><a href="#" class="menu-item" data-estructura="tries-residuos">Tries por Residuos</a></li>
+            <li><a href="#" class="menu-item" data-estructura="tries-residuos-multiples">Tries por Residuos Múltiples</a></li>
         </ul>
     </nav>
 </div>
-<!-- ====== CONTENIDO ====== -->
-<div class="contenido">
-    <div class="titulo">Panel Administrativo</div>
-    <div class="subtitulo">
-        Se está usando Thymeleaf para renderizar esta página. Explora el menú para ver las diferentes secciones.
+
+<!-- ====== CONTENEDOR PRINCIPAL ====== -->
+<div class="main-container">
+    <!-- ====== MENÚ LATERAL ====== -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2 id="sidebar-title">Selecciona una estructura</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#" class="sidebar-option">Crear</a></li>
+            <li><a href="#" class="sidebar-option">Insertar</a></li>
+            <li><a href="#" class="sidebar-option">Guardar</a></li>
+            <li><a href="#" class="sidebar-option">Recuperar</a></li>
+            <li><a href="#" class="sidebar-option">Imprimir</a></li>
+            <li><a href="#" class="sidebar-option">Buscar</a></li>
+            <li><a href="#" class="sidebar-option">Eliminar</a></li>
+        </ul>
+    </div>
+
+    <!-- ====== CONTENIDO ====== -->
+    <div class="contenido">
+        <!-- Sección inicial (se oculta para Lineal y Binaria) -->
+        <div class="contenido-inicial" id="contenido-inicial">
+            <div class="titulo">Selecciona una estructura de datos para comenzar</div>
+            <div class="subtitulo">
+                Elige una opción en la barra de navegación superior para realizar operaciones con diferentes estructuras de datos.
+            </div>
+        </div>
+
+        <!-- Contenedor de trabajo (se muestra para Lineal y Binaria) -->
+        <div class="contenedor-trabajo" id="contenedor-trabajo">
+            <!-- Panel izquierdo: Opciones del usuario -->
+            <div class="panel-opciones">
+                <h3 class="panel-titulo">Opciones</h3>
+                <div class="opciones-contenedor" id="opciones-contenedor">
+                    <!-- Las opciones se generan dinámicamente aquí -->
+                </div>
+            </div>
+
+            <!-- Panel derecho: Visualización de la estructura -->
+            <div class="panel-visualizacion">
+                <h3 class="panel-titulo">Estructura</h3>
+                <div class="scroll-contenedor" id="scroll-contenedor">
+                    <div class="estructura-canvas" id="estructura-canvas">
+                        <!-- La estructura visual se genera aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel inferior: Comentarios -->
+            <div class="panel-comentarios" id="panel-comentarios">
+                <div class="comentario-icono">ℹ️</div>
+                <div class="comentario-texto" id="comentario-texto">
+                    Selecciona una acción del menú lateral para comenzar
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    const menuItems = document.querySelectorAll('.menu-item');
+    const sidebarTitle = document.getElementById('sidebar-title');
+    const contenidoInicial = document.getElementById('contenido-inicial');
+    const contenedorTrabajo = document.getElementById('contenedor-trabajo');
+    const comentarioTexto = document.getElementById('comentario-texto');
+    const opcionesContenedor = document.getElementById('opciones-contenedor');
+    const sidebarOptions = document.querySelectorAll('.sidebar-option');
+
+    let estructuraActual = null;
+
+    const estructuraNames = {
+        'lineal': 'Estructura Lineal',
+        'binaria': 'Estructura Binaria',
+        'arboles-digitales': 'Árboles Digitales',
+        'tries-residuos': 'Tries por Residuos',
+        'tries-residuos-multiples': 'Tries por Residuos Múltiples'
+    };
+
+    const estructurasConPanel = ['lineal', 'binaria'];
+
+    // Evento para items del menú principal
+    menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const estructura = this.getAttribute('data-estructura');
+            sidebarTitle.textContent = estructuraNames[estructura];
+            estructuraActual = estructura;
+
+            // Mostrar u ocultar el contenedor de trabajo
+            if (estructurasConPanel.includes(estructura)) {
+                contenidoInicial.style.display = 'none';
+                contenedorTrabajo.classList.add('show');
+                comentarioTexto.textContent = `${estructuraNames[estructura]} cargada. Selecciona una acción del menú lateral.`;
+                opcionesContenedor.innerHTML = ''; // Limpiar opciones
+            } else {
+                contenidoInicial.style.display = 'block';
+                contenedorTrabajo.classList.remove('show');
+            }
+        });
+    });
+
+    // Evento para opciones del menú lateral
+    sidebarOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
+            const accion = this.textContent.trim();
+
+            if (!estructuraActual || !estructurasConPanel.includes(estructuraActual)) {
+                alert('Por favor selecciona una estructura (Lineal o Binaria) primero');
+                return;
+            }
+
+            // Limpiar opciones previas
+            opcionesContenedor.innerHTML = '';
+
+            // Mostrar formulario según la acción
+            if (accion === 'Crear') {
+                mostrarFormularioCrear();
+                comentarioTexto.textContent = '📝 Completa los campos necesarios para crear la estructura';
+            } else if (accion === 'Insertar') {
+                mostrarFormularioInsertar();
+                comentarioTexto.textContent = '➕ Ingresa el valor a insertar en la estructura';
+            } else if (accion === 'Buscar') {
+                mostrarFormularioBuscar();
+                comentarioTexto.textContent = '🔍 Ingresa el valor a buscar en la estructura';
+            } else if (accion === 'Eliminar') {
+                mostrarFormularioEliminar();
+                comentarioTexto.textContent = '🗑️ Selecciona una acción para eliminar';
+            } else {
+                opcionesContenedor.innerHTML = `
+                    <div style="padding: 15px; text-align: center; color: rgba(212, 212, 212, 0.7);">
+                        Funcionalidad de "${accion}" aún no disponible
+                    </div>
+                `;
+                comentarioTexto.textContent = `⏳ La opción "${accion}" está en desarrollo`;
+            }
+        });
+    });
+
+    // Función para mostrar formulario de Crear
+    function mostrarFormularioCrear() {
+        opcionesContenedor.innerHTML = `
+            <div class="form-group">
+                <label for="tamano-arreglo">Tamaño del Arreglo</label>
+                <input type="number" id="tamano-arreglo" placeholder="Ej: 10" min="1" max="100">
+            </div>
+
+            <div class="form-group">
+                <label for="tamano-claves">Tamaño de las Claves</label>
+                <input type="number" id="tamano-claves" placeholder="Ej: 5" min="1" max="50">
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Límite</label>
+                <div class="radio-group">
+                    <div class="radio-wrapper">
+                        <input type="radio" id="limite-estatico" name="limite" value="estatico" checked>
+                        <label for="limite-estatico">Estático</label>
+                    </div>
+                    <div class="radio-wrapper">
+                        <input type="radio" id="limite-dinamico" name="limite" value="dinamico">
+                        <label for="limite-dinamico">Dinámico</label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-accion" id="btn-crear">Crear Estructura</button>
+        `;
+
+        document.getElementById('btn-crear').addEventListener('click', async function() {
+            const tamanoArreglo = document.getElementById('tamano-arreglo').value;
+            const tamanoClaves = document.getElementById('tamano-claves').value;
+            const tipeLimite = document.querySelector('input[name="limite"]:checked').value;
+
+            if (!tamanoArreglo || !tamanoClaves) {
+                comentarioTexto.textContent = '❌ Por favor completa todos los campos';
+                return;
+            }
+
+            comentarioTexto.textContent = '⏳ Creando estructura...';
+            
+            try {
+                const response = await fetch(`/api/estructura/crear?tipo=${estructuraActual}&tamano=${tamanoArreglo}&tamanoClaves=${tamanoClaves}&tipeLimite=${tipeLimite}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.exito) {
+                    comentarioTexto.textContent = `✅ ${data.mensaje}`;
+                    visualizarEstructura(data.claves);
+                    document.getElementById('estructura-canvas').innerHTML += `
+                        <button class="btn-accion btn-secundario" id="btn-limpiar" style="margin-top: 10px; background: #ff6b6b;">
+                            Limpiar y Crear Nueva
+                        </button>
+                    `;
+                    document.getElementById('btn-limpiar').addEventListener('click', eliminarEstructura);
+                } else {
+                    comentarioTexto.textContent = `❌ ${data.mensaje}`;
+                }
+            } catch (error) {
+                comentarioTexto.textContent = '❌ Error de conexión: ' + error.message;
+            }
+        });
+    }
+
+    // Función para mostrar formulario de Insertar
+    function mostrarFormularioInsertar() {
+        opcionesContenedor.innerHTML = `
+            <div class="form-group">
+                <label for="valor-insertar">Valor a Insertar</label>
+                <input type="number" id="valor-insertar" placeholder="Ingresa el valor">
+            </div>
+
+            <button class="btn-accion" id="btn-insertar">Insertar</button>
+        `;
+
+        document.getElementById('btn-insertar').addEventListener('click', async function() {
+            const valor = document.getElementById('valor-insertar').value;
+            if (!valor) {
+                comentarioTexto.textContent = '❌ Por favor ingresa un valor';
+                return;
+            }
+
+            comentarioTexto.textContent = '⏳ Insertando clave...';
+            
+            try {
+                const response = await fetch(`/api/estructura/insertar?clave=${valor}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.exito) {
+                    comentarioTexto.textContent = `✅ ${data.mensaje}`;
+                    visualizarEstructura(data.claves);
+                    document.getElementById('valor-insertar').value = '';
+                } else {
+                    comentarioTexto.textContent = `❌ ${data.mensaje}`;
+                }
+            } catch (error) {
+                comentarioTexto.textContent = '❌ Error de conexión: ' + error.message;
+            }
+        });
+    }
+
+    // Función para mostrar formulario de Buscar
+    function mostrarFormularioBuscar() {
+        opcionesContenedor.innerHTML = `
+            <div class="form-group">
+                <label for="valor-buscar">Valor a Buscar</label>
+                <input type="number" id="valor-buscar" placeholder="Ingresa el valor a buscar">
+            </div>
+
+            <button class="btn-accion" id="btn-buscar">Buscar</button>
+            <button class="btn-accion btn-secundario" id="btn-repetir" style="background: #9d4edd; display: none;">
+                🔄 Repetir Animación
+            </button>
+        `;
+
+        const btnBuscar = document.getElementById('btn-buscar');
+        const btnRepetir = document.getElementById('btn-repetir');
+        let ultimosResultados = null;
+
+        btnBuscar.addEventListener('click', async function() {
+            const valor = document.getElementById('valor-buscar').value;
+            if (!valor) {
+                comentarioTexto.textContent = '❌ Por favor ingresa un valor';
+                return;
+            }
+
+            comentarioTexto.textContent = '⏳ Buscando...';
+            
+            try {
+                const response = await fetch(`/api/estructura/buscar?clave=${valor}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.exito) {
+                    ultimosResultados = data;
+                    btnRepetir.style.display = 'block';
+                    
+                    if (data.encontrado) {
+                        comentarioTexto.textContent = `✅ ${data.mensaje}`;
+                    } else {
+                        comentarioTexto.textContent = `❌ ${data.mensaje}`;
+                    }
+                    
+                    // Mostrar animación
+                    mostrarAnimacionBusqueda(data);
+                } else {
+                    comentarioTexto.textContent = `❌ ${data.mensaje}`;
+                }
+            } catch (error) {
+                comentarioTexto.textContent = '❌ Error de conexión: ' + error.message;
+            }
+        });
+
+        btnRepetir.addEventListener('click', function() {
+            if (ultimosResultados) {
+                mostrarAnimacionBusqueda(ultimosResultados);
+            }
+        });
+    }
+
+    // Función para mostrar animación de búsqueda
+    async function mostrarAnimacionBusqueda(datos) {
+        const canvas = document.getElementById('estructura-canvas');
+        let paso = 0;
+        const pasos = datos.pasos;
+        
+        if (pasos.length === 0) {
+            canvas.innerHTML = '<p style="color: #00d4ff;">No hay pasos para mostrar</p>';
+            return;
+        }
+        
+        const mostrarPaso = async (index) => {
+            if (index >= pasos.length) {
+                // Última visualización
+                visualizarEstructuraConMarcado(datos.claves, datos.encontrado ? datos.posicion : -1, true);
+                return;
+            }
+            
+            const paso = pasos[index];
+            visualizarEstructuraConMarcado(datos.claves, paso.indiceActual || paso.medio, false);
+            
+            comentarioTexto.innerHTML = obtenerTextoAnimacion(paso, paso.indiceActual || paso.medio, datos.pasos.length, index + 1);
+            
+            await new Promise(resolve => setTimeout(resolve, 800));
+            mostrarPaso(index + 1);
+        };
+        
+        mostrarPaso(0);
+    }
+
+    // Función para obtener texto de animación
+    function obtenerTextoAnimacion(paso, posicion, totalPasos, pasoActual) {
+        let texto = `Paso ${pasoActual}/${totalPasos}: `;
+        
+        if (paso.tipo === "lineal") {
+            texto += `Comparando posición ${posicion} (valor: ${paso.valorActual})`;
+            if (paso.esCoincidencia) {
+                texto += " ✅ ¡Coincidencia encontrada!";
+            }
+        } else if (paso.tipo === "binaria") {
+            texto += `Búsqueda binaria - Rango [${paso.izquierda}, ${paso.derecha}], Medio: ${paso.medio} (valor: ${paso.valorActual})`;
+            if (paso.esCoincidencia) {
+                texto += " ✅ ¡Coincidencia encontrada!";
+            }
+        }
+        
+        return texto;
+    }
+
+    // Función para visualizar estructura con marcado
+    function visualizarEstructuraConMarcado(claves, indiceMarcado, destacarCompleto) {
+        const canvas = document.getElementById('estructura-canvas');
+        
+        let html = '<div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">';
+        
+        claves.forEach((clave, index) => {
+            let estilo = 'background: rgba(0, 212, 255, 0.1); border: 2px solid rgba(0, 212, 255, 0.5);';
+            
+            if (index === indiceMarcado && !destacarCompleto) {
+                estilo = 'background: rgba(255, 193, 7, 0.3); border: 3px solid #ffc107; transform: scale(1.1);';
+            } else if (destacarCompleto && index === indiceMarcado) {
+                estilo = 'background: rgba(76, 175, 80, 0.3); border: 3px solid #4caf50; transform: scale(1.1);';
+            }
+            
+            html += `
+                <div style="
+                    padding: 12px 16px;
+                    ${estilo}
+                    border-radius: 6px;
+                    color: #00d4ff;
+                    font-weight: bold;
+                    transition: all 0.3s ease;
+                    min-width: 50px;
+                    text-align: center;
+                ">
+                    ${clave}
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        canvas.innerHTML = html;
+    }
+
+    // Función para visualizar estructura
+    function visualizarEstructura(claves) {
+        const canvas = document.getElementById('estructura-canvas');
+        visualizarEstructuraConMarcado(claves, -1, false);
+    }
+
+    // Función para eliminar estructura
+    async function eliminarEstructura() {
+        comentarioTexto.textContent = '⏳ Eliminando estructura...';
+        
+        try {
+            const response = await fetch('/api/estructura/eliminar-estructura', {
+                method: 'POST'
+            });
+            
+            const data = await response.json();
+            
+            if (data.exito) {
+                comentarioTexto.textContent = `✅ ${data.mensaje}`;
+                opcionesContenedor.innerHTML = '';
+                document.getElementById('estructura-canvas').innerHTML = 
+                    '<p style="color: rgba(212, 212, 212, 0.7);">Estructura eliminada. Selecciona "Crear" para empezar de nuevo.</p>';
+            }
+        } catch (error) {
+            comentarioTexto.textContent = '❌ Error: ' + error.message;
+        }
+    }
+
+    // Función para mostrar formulario de Eliminar
+    function mostrarFormularioEliminar() {
+        opcionesContenedor.innerHTML = `
+            <div class="form-group">
+                <label for="valor-eliminar">Valor a Eliminar</label>
+                <input type="number" id="valor-eliminar" placeholder="Ingresa el valor a eliminar">
+            </div>
+
+            <button class="btn-accion" id="btn-eliminar">Eliminar Clave</button>
+            <button class="btn-accion btn-secundario" id="btn-repetir-eliminar" style="background: #ff6b6b !important; display: none;">
+                🔄 Repetir Animación
+            </button>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 212, 255, 0.2);">
+                <h4 style="color: #00d4ff; margin-top: 0;">Acciones Adicionales</h4>
+                <button class="btn-accion" id="btn-limpiar-estruc" style="background: #ff6b6b !important; width: 100%;">
+                    🗑️ Borrar Toda la Estructura
+                </button>
+            </div>
+        `;
+
+        const btnEliminar = document.getElementById('btn-eliminar');
+        const btnRepetirEliminar = document.getElementById('btn-repetir-eliminar');
+        const btnLimpiar = document.getElementById('btn-limpiar-estruc');
+        let ultimosResultados = null;
+
+        btnEliminar.addEventListener('click', async function() {
+            const valor = document.getElementById('valor-eliminar').value;
+            if (!valor) {
+                comentarioTexto.textContent = '❌ Por favor ingresa un valor';
+                return;
+            }
+
+            comentarioTexto.textContent = '⏳ Eliminando clave...';
+            
+            try {
+                const response = await fetch(`/api/estructura/eliminar?clave=${valor}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.exito) {
+                    ultimosResultados = data;
+                    btnRepetirEliminar.style.display = 'block';
+                    
+                    if (data.encontrado) {
+                        comentarioTexto.textContent = `✅ ${data.mensaje}`;
+                    } else {
+                        comentarioTexto.textContent = `❌ Clave no encontrada`;
+                    }
+                    
+                    // Mostrar animación
+                    mostrarAnimacionBusqueda(data);
+                } else {
+                    comentarioTexto.textContent = `❌ ${data.mensaje}`;
+                }
+            } catch (error) {
+                comentarioTexto.textContent = '❌ Error de conexión: ' + error.message;
+            }
+        });
+
+        btnRepetirEliminar.addEventListener('click', function() {
+            if (ultimosResultados) {
+                mostrarAnimacionBusqueda(ultimosResultados);
+            }
+        });
+
+        btnLimpiar.addEventListener('click', eliminarEstructura);
+    }
+</script>
 
 </body>
 </html>
