@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Binaria - Ciencias de la computacion II</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar">
+    <ul class="menu">
+        <li><a th:href="@{/}">Inicio</a></li>
+        <li><a th:href="@{/busquedas}">Busquedas</a></li>
+        <li><a th:href="@{/grafos}">Grafos</a></li>
+    </ul>
+</nav>
+<div class="contenido">
+    <div class="titulo">Busquedas - Binaria</div>
+    <div class="subtitulo">Página de ejemplo para búsqueda binaria.</div>
+
+    <div style="display:flex; gap:20px; align-items:flex-start; margin-top:16px;">
+        <div style="width:320px; text-align:left;">
+            <div class="control-panel" style="flex-direction:column; align-items:flex-start; gap:10px;">
+                <label>Tamaño de arreglo:</label>
+                <select id="size-array">
+                    <option value="10">10</option>
+                    <option value="100">100</option>
+                    <option value="1000">1000</option>
+                </select>
+
+                <label style="margin-top:8px;">Tamaño de clave:</label>
+                <input id="key-size" type="number" placeholder="(ej. 5)" min="1">
+
+                <button id="accept-btn" style="margin-top:8px;" onclick="aceptarParametros()">Aceptar</button>
+                <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+                    <input id="insert-sorted" type="checkbox">
+                    <label for="insert-sorted" style="margin:0;">Insertar ordenado</label>
+                </div>
+            </div>
+
+            <div style="margin-top:18px; padding:14px; background-color:#f9f9f9; border-radius:6px;">
+                <h4 style="margin:0 0 8px 0;">Agregar dato (secuencial)</h4>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input id="add-value" type="text" placeholder="Valor" style="width:140px; padding:6px;">
+                    <button onclick="agregarDato()" style="padding:6px 12px; background-color:#28a745; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500;">Agregar</button>
+                    <button onclick="ordenarArreglo()" style="padding:6px 12px; background-color:#005580; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500;">Ordenar ahora</button>
+                </div>
+            </div>
+
+            <div style="margin-top:12px; padding:14px; background-color:#f9f9f9; border-radius:6px;">
+                <h4 style="margin:0 0 8px 0;">Eliminar por clave</h4>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input id="delete-key" type="text" placeholder="Clave a eliminar" style="width:160px; padding:6px;">
+                    <button onclick="eliminarPorClave()" style="padding:6px 12px; background-color:#dc3545; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500;">Eliminar</button>
+                </div>
+            </div>
+
+            <div style="margin-top:12px; padding:14px; background-color:#f9f9f9; border-radius:6px;">
+                <h4 style="margin:0 0 8px 0;">Buscar (Binaria)</h4>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input id="search-key" type="text" placeholder="Clave a buscar" style="width:160px; padding:6px;">
+                    <button onclick="buscarBinaria()" style="padding:6px 12px; background-color:#0077a3; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500;">Buscar</button>
+                </div>
+                <div id="search-result" style="margin-top:8px; color:#333;"></div>
+            </div>
+
+            <div style="margin-top:12px;">
+                <button id="clear-btn" onclick="limpiarArreglo()" style="padding:8px 12px; background-color:#6c757d; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500;">Limpiar Todo</button>
+            </div>
+        </div>
+
+        <div style="flex:1;">
+            <div id="array-container" style="display:none;">
+                <h3>Arreglo (vacío)</h3>
+                <div id="array-boxes" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-start; min-height:50px; max-height:400px; overflow-y:auto; padding:6px; border:1px solid #eee; border-radius:6px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let arregloData = {};
+let tamanoClave = 0;
+let tamanoArreglo = 0;
+
+function aceptarParametros() {
+    const tamano = document.getElementById('size-array').value;
+    const clave = document.getElementById('key-size').value;
+    
+    if (!clave) {
+        alert('Por favor ingresa el tamaño de clave');
+        return;
+    }
+    
+    const tamanoClaveParsed = parseInt(clave);
+    if (tamanoClaveParsed < 1) {
+        alert('El tamaño de clave debe ser mayor a 0');
+        return;
+    }
+    
+    tamanoArreglo = parseInt(tamano);
+    tamanoClave = tamanoClaveParsed;
+    arregloData = {};
+    document.getElementById('add-value').maxLength = tamanoClave;
+    document.getElementById('array-container').style.display = 'block';
+    actualizarVisualizacion();
+}
+
+function agregarDato() {
+    const valor = document.getElementById('add-value').value;
+
+    if (!valor) {
+        alert('Ingresa un valor para agregar');
+        return;
+    }
+    // validar formato: sólo dígitos y longitud <= tamanoClave
+    if (!/^[0-9]+$/.test(valor) || valor.length > tamanoClave) {
+        alert('La clave debe ser numérica y como máximo ' + tamanoClave + ' dígitos');
+        return;
+    }
+    const padded = valor.padStart(tamanoClave, '0');
+
+    // verificar duplicados
+    for (const p in arregloData) {
+        if (String(arregloData[p]) === String(padded)) { alert('No se permiten claves repetidas'); return; }
+    }
+
+    const insertSorted = document.getElementById('insert-sorted') && document.getElementById('insert-sorted').checked;
+    if (insertSorted) {
+        // tomar todos los valores existentes, añadir nuevo, ordenar y reasignar desde la posición 1
+        const vals = [];
+        for (let i = 1; i <= tamanoArreglo; i++) if (arregloData[i]) vals.push(String(arregloData[i]));
+        if (vals.length >= tamanoArreglo) { alert('El arreglo está lleno'); return; }
+        vals.push(padded);
+        vals.sort((a,b)=> parseInt(a) - parseInt(b));
+        arregloData = {};
+        for (let i = 0; i < vals.length; i++) arregloData[i+1] = vals[i];
+    } else {
+        // agregación secuencial: busca la primera posición libre
+        let posicionLibre = -1;
+        for (let i = 1; i <= tamanoArreglo; i++) {
+            if (!arregloData[i]) { posicionLibre = i; break; }
+        }
+        if (posicionLibre === -1) {
+            alert('El arreglo está lleno');
+            return;
+        }
+        arregloData[posicionLibre] = padded;
+    }
+    document.getElementById('add-value').value = '';
+    actualizarVisualizacion();
+}
+
+function eliminarPorClave() {
+    let clave = document.getElementById('delete-key').value;
+    if (!clave) { alert('Ingresa la clave a eliminar'); return; }
+    if (!/^[0-9]+$/.test(clave) || clave.length > tamanoClave) { alert('La clave debe ser numérica y como máximo ' + tamanoClave + ' dígitos'); return; }
+    clave = clave.padStart(tamanoClave, '0');
+    let encontrado = false;
+    for (const pos in arregloData) {
+        if (String(arregloData[pos]) === String(clave)) { delete arregloData[pos]; encontrado = true; }
+    }
+    if (!encontrado) {
+        alert('No se encontró la clave en el arreglo');
+    } else {
+        document.getElementById('delete-key').value = '';
+        actualizarVisualizacion();
+    }
+}
+
+function buscarBinaria() {
+    let clave = document.getElementById('search-key').value;
+    const resultDiv = document.getElementById('search-result');
+    resultDiv.textContent = '';
+    if (!clave) { alert('Ingresa la clave a buscar'); return; }
+    if (!/^[0-9]+$/.test(clave) || clave.length > tamanoClave) { alert('La clave debe ser numérica y como máximo ' + tamanoClave + ' dígitos'); return; }
+    clave = clave.padStart(tamanoClave, '0');
+
+    // verificar que el arreglo esté ordenado (si no, pedir ordenar)
+    if (!isArregloOrdenado()) { alert('El arreglo debe estar ordenado para búsqueda binaria. Usa "Ordenar ahora" o activa "Insertar ordenado".'); resultDiv.textContent = 'Arreglo no ordenado'; return; }
+
+    // crear arreglo de pares [valor, posicion] en el orden actual y realizar búsqueda binaria
+    const pares = [];
+    for (let i = 1; i <= tamanoArreglo; i++) {
+        if (arregloData[i]) pares.push({v: String(arregloData[i]), p: i});
+    }
+    if (pares.length === 0) { resultDiv.textContent = 'Arreglo vacío'; alert('Arreglo vacío'); return; }
+
+    let low = 0, high = pares.length - 1, foundIndex = -1;
+    while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        const val = parseInt(pares[mid].v);
+        if (val === parseInt(clave)) { foundIndex = mid; break; }
+        if (val < parseInt(clave)) low = mid + 1; else high = mid - 1;
+    }
+    if (foundIndex === -1) { resultDiv.textContent = 'No encontrado'; alert('No se encontró la clave (en los elementos presentes)'); return; }
+    const posicion = pares[foundIndex].p;
+    resultDiv.textContent = 'Encontrado en posición: ' + posicion;
+    const cell = document.getElementById('cell-input-' + posicion);
+    if (cell) { const prev = cell.style.backgroundColor; cell.style.backgroundColor = '#fff3b0'; cell.focus(); setTimeout(()=> cell.style.backgroundColor = prev, 1200); }
+}
+
+function isArregloOrdenado() {
+    let last = null;
+    for (let i = 1; i <= tamanoArreglo; i++) {
+        if (!arregloData[i]) continue;
+        const v = parseInt(String(arregloData[i]));
+        if (last !== null && v < last) return false;
+        last = v;
+    }
+    return true;
+}
+
+function ordenarArreglo() {
+    const vals = [];
+    for (let i = 1; i <= tamanoArreglo; i++) if (arregloData[i]) vals.push(String(arregloData[i]));
+    vals.sort((a,b)=> parseInt(a) - parseInt(b));
+    arregloData = {};
+    for (let i = 0; i < vals.length; i++) arregloData[i+1] = vals[i];
+    actualizarVisualizacion();
+}
+
+function actualizarVisualizacion() {
+    const boxesDiv = document.getElementById('array-boxes');
+    boxesDiv.innerHTML = '';
+    // usar envoltura y scroll vertical dentro del contenedor (evitar desplazamiento horizontal)
+    boxesDiv.style.maxHeight = '400px';
+    boxesDiv.style.overflowY = 'auto';
+    boxesDiv.style.overflowX = 'hidden';
+    boxesDiv.style.flexWrap = 'wrap';
+    boxesDiv.style.alignItems = 'flex-start';
+    boxesDiv.style.justifyContent = 'flex-start';
+    boxesDiv.style.padding = '6px';
+
+    for (let i = 1; i <= tamanoArreglo; i++) {
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.gap = '6px';
+        wrapper.style.margin = '4px';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'cell-input-' + i;
+        input.className = 'cell-input';
+        input.value = arregloData[i] || '';
+        input.maxLength = tamanoClave;
+        input.placeholder = '';
+        input.style.textAlign = 'center';
+        if (tamanoArreglo >= 100) {
+            input.style.width = '44px';
+            input.style.padding = '4px';
+            input.style.fontSize = '11px';
+        } else {
+            input.style.width = '72px';
+            input.style.padding = '6px 8px';
+            input.style.fontSize = '13px';
+        }
+        input.readOnly = true;
+
+        const label = document.createElement('label');
+        label.textContent = i;
+        label.style.fontSize = tamanoArreglo >= 100 ? '10px' : '12px';
+        label.style.color = '#666';
+
+        wrapper.appendChild(input);
+        wrapper.appendChild(label);
+        boxesDiv.appendChild(wrapper);
+    }
+}
+
+function limpiarArreglo() {
+    arregloData = {};
+    const addValue = document.getElementById('add-value');
+    if (addValue) addValue.value = '';
+    const deleteKey = document.getElementById('delete-key');
+    if (deleteKey) deleteKey.value = '';
+    const addPos = document.getElementById('add-position');
+    if (addPos) addPos.value = '';
+    actualizarVisualizacion();
+}
+</script>
+</body>
+</html>

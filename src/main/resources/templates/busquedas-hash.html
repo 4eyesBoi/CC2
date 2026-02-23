@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Funciones Hash - Ciencias de la computacion II</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar">
+    <ul class="menu">
+        <li><a th:href="@{/}">Inicio</a></li>
+        <li><a th:href="@{/busquedas}">Busquedas</a></li>
+        <li><a th:href="@{/grafos}">Grafos</a></li>
+    </ul>
+</nav>
+
+<!-- Menú estático superior -->
+<nav class="menu-superior">
+  <div class="menu-container">
+    <!-- Búsqueda -->
+    <div class="search-box">
+      <input type="text" placeholder="Buscar..." id="searchInput">
+      <button>🔍</button>
+    </div>
+
+    <!-- Navegación por grafos -->
+    <div class="nav-grafos">
+      <button class="nav-btn" data-menu="grafos-basicos">Grafos Básicos</button>
+      <button class="nav-btn" data-menu="grafos-avanzados">Grafos Avanzados</button>
+      <button class="nav-btn" data-menu="algoritmos">Algoritmos</button>
+    </div>
+  </div>
+</nav>
+
+
+<div class="contenido">
+    <div class="titulo">Busquedas - Funciones Hash</div>
+    <div class="subtitulo">Página de ejemplo para funciones hash.</div>
+
+    <div style="display:flex; gap:20px; align-items:flex-start; margin-top:16px;">
+        <div style="width:320px; text-align:left;">
+            <div class="control-panel" style="flex-direction:column; align-items:flex-start; gap:10px;">
+                <label>Tamaño de arreglo:</label>
+                <select id="size-array">
+                    <option value="10">10</option>
+                    <option value="100">100</option>
+                    <option value="1000">1000</option>
+                </select>
+
+                <label style="margin-top:8px;">Tamaño de clave:</label>
+                <input id="key-size" type="number" placeholder="(ej. 5)" min="1">
+
+                <label style="margin-top:8px;">Método de hashing:</label>
+                <select id="hash-method" onchange="onMethodChange()">
+                    <option value="modulo">Hash Módulo</option>
+                    <option value="cuadrado">Hash Cuadrado</option>
+                    <option value="truncamiento">Hash Truncamiento</option>
+                    <option value="plegamiento">Hash Plegamiento</option>
+                </select>
+
+                <div id="trunc-opts" style="display:none; margin-top:6px;">
+                    <label style="font-size:13px;">Truncamiento: posiciones de dígitos</label>
+                    <div style="display:flex; gap:8px; margin-top:6px;">
+                        <input id="trunc-pos1" type="number" min="1" placeholder="pos1" style="width:70px;">
+                        <input id="trunc-pos2" type="number" min="1" placeholder="pos2" style="width:70px;">
+                    </div>
+                    <div style="font-size:12px; color:#555; margin-top:6px;">Ej: clave 2015, pos1=1 pos2=2 → (20)+1 → 21</div>
+                </div>
+
+                <button id="accept-btn" style="margin-top:8px;" onclick="aceptarParametros()">Aceptar</button>
+            </div>
+
+            <div style="margin-top:18px; padding:14px; background-color:#f9f9f9; border-radius:6px;">
+                <h4 style="margin:0 0 8px 0;">Agregar dato</h4>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input id="add-value" type="text" placeholder="Valor" style="width:160px; padding:6px;">
+                    <button onclick="agregarDato()" style="padding:6px 12px; background-color:#28a745; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500;">Agregar</button>
+                </div>
+            </div>
+
+            <div style="margin-top:12px; padding:14px; background-color:#f9f9f9; border-radius:6px;">
+                <h4 style="margin:0 0 8px 0;">Eliminar por clave</h4>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input id="delete-key" type="text" placeholder="Clave a eliminar" style="width:160px; padding:6px;">
+                    <button onclick="eliminarPorClave()" style="padding:6px 12px; background-color:#dc3545; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500;">Eliminar</button>
+                </div>
+            </div>
+
+            <div style="margin-top:12px;">
+                <button id="clear-btn" onclick="limpiarArreglo()" style="padding:8px 12px; background-color:#6c757d; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500;">Limpiar Todo</button>
+            </div>
+        </div>
+
+        <div style="flex:1;">
+            <div id="array-container" style="display:none;">
+                <h3>Arreglo (vacío)</h3>
+                <div id="array-boxes" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-start; min-height:50px; max-height:400px; overflow-y:auto; padding:6px; border:1px solid #eee; border-radius:6px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</script>
+<script>
+let arregloData = {};
+let tamanoClave = 0;
+let tamanoArreglo = 0;
+
+function onMethodChange() {
+    const m = document.getElementById('hash-method').value;
+    document.getElementById('trunc-opts').style.display = (m === 'truncamiento') ? 'block' : 'none';
+}
+
+function aceptarParametros() {
+    const tamano = document.getElementById('size-array').value;
+    const clave = document.getElementById('key-size').value;
+    
+    if (!clave) { alert('Por favor ingresa el tamaño de clave'); return; }
+    const tamanoClaveParsed = parseInt(clave);
+    if (tamanoClaveParsed < 1) { alert('El tamaño de clave debe ser mayor a 0'); return; }
+
+    tamanoArreglo = parseInt(tamano);
+    tamanoClave = tamanoClaveParsed;
+    arregloData = {};
+    document.getElementById('add-value').maxLength = tamanoClave;
+    document.getElementById('array-container').style.display = 'block';
+    // set defaults for truncamiento positions
+    document.getElementById('trunc-pos1').value = document.getElementById('trunc-pos1').value || 1;
+    document.getElementById('trunc-pos2').value = document.getElementById('trunc-pos2').value || 2;
+    actualizarVisualizacion();
+}
+
+function padKey(s) {
+    s = String(s);
+    while (s.length < tamanoClave) s = '0' + s;
+    return s;
+}
+
+function hashFunction(keyStr) {
+    const method = document.getElementById('hash-method').value;
+    const s = padKey(keyStr);
+    if (method === 'modulo') {
+        const n = parseInt(s, 10);
+        if (tamanoArreglo === 0) return 1;
+        return (n % tamanoArreglo) + 1;
+    }
+    if (method === 'cuadrado') {
+        const n = parseInt(s, 10);
+        const sq = String(n * n);
+        const mid = Math.floor(sq.length / 2);
+        const a = sq[mid - 1] || '0';
+        const b = sq[mid] || '0';
+        const num = parseInt(a + b, 10);
+        return (num % tamanoArreglo) + 1;
+    }
+    if (method === 'truncamiento') {
+        const p1 = parseInt(document.getElementById('trunc-pos1').value || 1, 10);
+        const p2 = parseInt(document.getElementById('trunc-pos2').value || 2, 10);
+        const pos1 = Math.max(1, Math.min(tamanoClave, p1));
+        const pos2 = Math.max(1, Math.min(tamanoClave, p2));
+        const ch1 = s.charAt(pos1 - 1) || '0';
+        const ch2 = s.charAt(pos2 - 1) || '0';
+        const num = parseInt(ch1 + ch2, 10);
+        return (num % tamanoArreglo) + 1;
+    }
+    // plegamiento
+    const groupSize = 2;
+    let sum = 0;
+    for (let i = 0; i < s.length; i += groupSize) {
+        const chunk = s.substr(i, groupSize);
+        sum += parseInt(chunk, 10);
+    }
+    return (sum % tamanoArreglo) + 1;
+}
+
+function buscarIndicePorClave(keyStr) {
+    if (!tamanoArreglo) return -1;
+    const key = padKey(keyStr);
+    const start = hashFunction(key);
+    for (let i = 0; i < tamanoArreglo; i++) {
+        const pos = ((start - 1 + i) % tamanoArreglo) + 1;
+        const val = arregloData[pos];
+        if (!val) return -1; // empty slot -> not found
+        if (String(val) === String(key)) return pos;
+    }
+    return -1;
+}
+
+function insertValue(keyStr) {
+    const key = padKey(keyStr);
+    if (buscarIndicePorClave(key) !== -1) { alert('La clave ya existe'); return -1; }
+    const start = hashFunction(key);
+    for (let i = 0; i < tamanoArreglo; i++) {
+        const pos = ((start - 1 + i) % tamanoArreglo) + 1;
+        if (!arregloData[pos]) {
+            arregloData[pos] = key;
+            return pos;
+        }
+    }
+    alert('Tabla hash llena');
+    return -1;
+}
+
+function agregarDato() {
+    const valor = document.getElementById('add-value').value;
+    if (!valor) { alert('Ingresa valor'); return; }
+    if (!/^[0-9]+$/.test(valor) || valor.length !== tamanoClave) { alert('La clave debe ser numérica y tener exactamente ' + tamanoClave + ' dígitos'); return; }
+    const pos = insertValue(valor);
+    if (pos !== -1) {
+        document.getElementById('add-value').value = '';
+        actualizarVisualizacion();
+    }
+}
+
+function rehashClusterFrom(deletedPos) {
+    let idx = deletedPos % tamanoArreglo + 1;
+    while (true) {
+        if (!arregloData[idx]) break;
+        const val = arregloData[idx];
+        delete arregloData[idx];
+        insertValue(val);
+        idx = idx % tamanoArreglo + 1;
+    }
+}
+
+function eliminarPorClave() {
+    const claveIn = document.getElementById('delete-key').value;
+    if (!claveIn) { alert('Ingresa la clave a eliminar'); return; }
+    const clave = padKey(claveIn);
+    const pos = buscarIndicePorClave(clave);
+    if (pos === -1) { alert('No se encontró la clave en el arreglo'); return; }
+    delete arregloData[pos];
+    rehashClusterFrom(pos);
+    document.getElementById('delete-key').value = '';
+    actualizarVisualizacion();
+}
+
+function actualizarVisualizacion() {
+    const boxesDiv = document.getElementById('array-boxes');
+    boxesDiv.innerHTML = '';
+    boxesDiv.style.maxHeight = '400px';
+    boxesDiv.style.overflowY = 'auto';
+    boxesDiv.style.overflowX = 'hidden';
+    boxesDiv.style.flexWrap = 'wrap';
+    boxesDiv.style.alignItems = 'flex-start';
+    boxesDiv.style.justifyContent = 'flex-start';
+    boxesDiv.style.padding = '6px';
+
+    for (let i = 1; i <= tamanoArreglo; i++) {
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.gap = '6px';
+        wrapper.style.margin = '4px';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'cell-input-' + i;
+        input.className = 'cell-input';
+        input.value = arregloData[i] || '';
+        input.maxLength = tamanoClave;
+        input.placeholder = '';
+        input.style.textAlign = 'center';
+        input.readOnly = true;
+        if (tamanoArreglo >= 100) {
+            input.style.width = '44px';
+            input.style.padding = '4px';
+            input.style.fontSize = '11px';
+        } else {
+            input.style.width = '72px';
+            input.style.padding = '6px 8px';
+            input.style.fontSize = '13px';
+        }
+
+        if (arregloData[i]) {
+            input.style.backgroundColor = '#fffbea';
+        } else {
+            input.style.backgroundColor = '';
+        }
+
+        const label = document.createElement('label');
+        label.textContent = i;
+        label.style.fontSize = tamanoArreglo >= 100 ? '10px' : '12px';
+        label.style.color = '#666';
+
+        wrapper.appendChild(input);
+        wrapper.appendChild(label);
+        boxesDiv.appendChild(wrapper);
+    }
+}
+
+function limpiarArreglo() {
+    arregloData = {};
+    const addValue = document.getElementById('add-value');
+    if (addValue) addValue.value = '';
+    const deleteKey = document.getElementById('delete-key');
+    if (deleteKey) deleteKey.value = '';
+    document.getElementById('trunc-pos1').value = '';
+    document.getElementById('trunc-pos2').value = '';
+    actualizarVisualizacion();
+}
+</script>
+</body>
+</html>

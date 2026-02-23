@@ -7,32 +7,30 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<!--
-    <div th:replace="header :: header"></div>
--->
-    <h2>Ingrese los datos del arreglo</h2>
 
-    <form th:action="@{/crearArreglo}" method="post">
+    <h2>hola</h2>
+
+    <form th:action="@{/procesarFormulario}" method="post">
         
         <div>
-            <label for="tamArr">Tamaño del Arreglo:</label>
-            <input type="text" id="tamArr" name="tamArr" required>
+            <label for="campo1">Campo 1:</label>
+            <input type="text" id="campo1" name="campo1" required>
         </div>
 
         <br>
 
         <div>
-            <label for="tamClav">Tamaño de la Clave:</label>
-            <input type="text" id="tamClav" name="tamClav" required>
+            <label for="campo2">Campo 2:</label>
+            <input type="text" id="campo2" name="campo2" required>
         </div>
 
         <br>
-<!--
+
         <div>
             <label for="campo3">Campo 3:</label>
             <input type="text" id="campo3" name="campo3" required>
         </div>
-    -->
+
         <br><br>
 
         <button type="submit">Enviar</button>

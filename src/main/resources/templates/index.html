@@ -2,76 +2,44 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Menú Elegante</title>
+    <title>Ciencias de la computacion II</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
 
-<div th:fragment="header">
-    <!-- ====== MENÚ ====== -->
-    <nav class="navbar">
-        <ul class="menu">
+<!-- ====== MENÚ ====== -->
+<nav class="navbar">
+    <ul class="menu">
 
-            <!-- Opción 1 -->
-            <li>
-                <a href="#">Crear</a>
-                <ul class="submenu">
-                    <li><a th:href="@{/arreglo}">Arreglo</a></li>
-                    <li><a th:href="@{/lista}">Lista</a></li>
-                    <li><a th:href="@{/arbol}">Árbol</a></li>
-                    <li><a th:href="@{/pilas}">Pilas</a></li>
-                    <li><a th:href="@{/colas}">Colas</a></li>
-                </ul>
-            </li>
+        <!-- Busquedas -->
+        <li>
+            <a href="#">Busquedas</a>
+            <ul class="submenu">
+                <li><a th:href="@{/busquedas/lineal}">Lineal</a></li>
+                <li><a th:href="@{/busquedas/binaria}">Binaria</a></li>
+                <li><a th:href="@{/busquedas/hash}">Funciones Hash</a></li>
+            </ul>
+        </li>
 
-            <!-- Opción 2 -->
-            <li>
-                <a href="#">Sección 2</a>
-                <ul class="submenu">
-                    <li><a th:href="@{/usuarios/lista}">Sub-Sección 1</a></li>
-                    <li><a th:href="@{/usuarios/crear}">Sub-Sección 2</a></li>
-                    <li><a th:href="@{/usuarios/roles}">Sub-Sección 3</a></li>
-                    <li><a th:href="@{/usuarios/permisos}">Sub-Sección 4</a></li>
-                    <li><a th:href="@{/usuarios/reportes}">Sub-Sección 5</a></li>
-                </ul>
-            </li>
+        <!-- Grafos -->
+        <li>
+            <a href="#">Grafos</a>
+            <ul class="submenu">
+                <li><a th:href="@{/grafos}">Ir a Grafos</a></li>
+            </ul>
+        </li>
 
-            <!-- Opción 3 -->
-            <li>
-                <a href="#">Sección 3</a>
-                <ul class="submenu">
-                    <li><a th:href="@{/servicios/activos}">Sub-Sección 1</a></li>
-                    <li><a th:href="@{/servicios/inactivos}">Sub-Sección 2</a></li>
-                    <li><a th:href="@{/servicios/nuevo}">Sub-Sección 3</a></li>
-                    <li><a th:href="@{/servicios/config}">Sub-Sección 4</a></li>
-                    <li><a th:href="@{/servicios/logs}">Sub-Sección 5</a></li>
-                </ul>
-            </li>
+    </ul>
+</nav>
 
-            <!-- Opción 4 -->
-            <li>
-                <a href="#">Sección 4</a>
-                <ul class="submenu">
-                    <li><a th:href="@{/config/general}">Sub-Sección 1</a></li>
-                    <li><a th:href="@{/config/seguridad}">Sub-Sección 2</a></li>
-                    <li><a th:href="@{/config/notificaciones}">Sub-Sección 3</a></li>
-                    <li><a th:href="@{/config/integraciones}">Sub-Sección 4</a></li>
-                    <li><a th:href="@{/config/auditoria}">Sub-Sección 5</a></li>
-                </ul>
-            </li>
-
-        </ul>
-    </nav>
-</div>
 <!-- ====== CONTENIDO ====== -->
 <div class="contenido">
-    <div class="titulo">Panel Administrativo</div>
+    <div class="titulo">Ciencias de la computacion II</div>
     <div class="subtitulo">
-        Se está usando Thymeleaf para renderizar esta página. Explora el menú para ver las diferentes secciones.
+        Selecciona una opción del menú para comenzar.
     </div>
 </div>
 
 </body>
 </html>
-
