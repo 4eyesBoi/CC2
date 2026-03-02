@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .estructura-contenedor {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .estructura-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            background-color: #ffffff;
+            color: #000;
+            transition: all 0.4s ease;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .estructura-item .posicion {
+            flex-shrink: 0;
+            width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: #007bff;
+            font-size: 14px;
+            background-color: rgba(0, 123, 255, 0.08);
+            padding: 6px;
+            border-radius: 3px;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .estructura-item .clave {
+            flex: 1;
+            padding: 6px 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #000;
+            word-break: break-all;
+        }
+
+        .estructura-item.item-marcado {
+            background-color: rgba(0, 123, 255, 0.2);
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+            animation: resaltado-flashing 0.6s ease;
+        }
+
+        @keyframes resaltado-flashing {
+            0% { background-color: rgba(0,0,0,0); }
+            50% { background-color: rgba(255, 255, 0, 0.4); }
+            100% { background-color: rgba(0,0,0,0); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Render Estructura con Divs</h1>
+    <div id="test-canvas"></div>
+    
+    <script>
+        // Simular la función visualizarEstructuraConMarcado
+        function visualizarEstructuraConMarcado(claves, indiceMarcado, destacarCompleto) {
+            const canvas = document.getElementById('test-canvas');
+            let html = '<div class="estructura-contenedor">';
+            
+            const tamanoMaximo = 5;
+            
+            for (let i = 0; i < tamanoMaximo; i++) {
+                const valor = i < claves.length ? claves[i] : '';
+                let clases = 'estructura-item';
+                
+                if (i === indiceMarcado && !destacarCompleto) {
+                    clases += ' item-marcado';
+                }
+                if (destacarCompleto && i === indiceMarcado) {
+                    clases += ' item-encontrado';
+                }
+                
+                html += `<div class="${clases}" data-index="${i}">
+                            <div class="posicion">${i}</div>
+                            <div class="clave">${valor}</div>
+                         </div>`;
+            }
+            
+            html += '</div>';
+            canvas.innerHTML = html;
+        }
+        
+        // Test 1: Estructura vacía
+        console.log('Test 1: Estructura vacía');
+        visualizarEstructuraConMarcado([], -1, false);
+        
+        // Test 2: Con algunas claves
+        console.log('Test 2: Con claves');
+        setTimeout(() => {
+            visualizarEstructuraConMarcado(['AA', 'BB', 'CC'], -1, false);
+        }, 1000);
+        
+        // Test 3: Con marcado
+        console.log('Test 3: Con marcado');
+        setTimeout(() => {
+            visualizarEstructuraConMarcado(['AA', 'BB', 'CC'], 1, false);
+        }, 2000);
+        
+        // Test 4: Encontrado
+        console.log('Test 4: Encontrado');
+        setTimeout(() => {
+            visualizarEstructuraConMarcado(['AA', 'BB', 'CC'], 1, true);
+        }, 3000);
+    </script>
+</body>
+</html>

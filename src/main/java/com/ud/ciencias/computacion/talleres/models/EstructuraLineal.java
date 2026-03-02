@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EstructuraLineal {
-    private List<Integer> claves;
+    private List<String> claves;
     private int tamanoMaximo;
     private boolean estatico;
     
@@ -14,7 +14,7 @@ public class EstructuraLineal {
         this.estatico = estatico;
     }
     
-    public boolean insertar(int clave) {
+    public boolean insertar(String clave) {
         // Verificar si ya existe
         if (claves.contains(clave)) {
             return false;
@@ -25,9 +25,9 @@ public class EstructuraLineal {
             return false;
         }
         
-        // Insertar en posición ordenada
+        // Insertar en posición ordenada utilizando comparación lexicográfica
         int posicion = 0;
-        while (posicion < claves.size() && claves.get(posicion) < clave) {
+        while (posicion < claves.size() && claves.get(posicion).compareTo(clave) < 0) {
             posicion++;
         }
         
@@ -35,13 +35,14 @@ public class EstructuraLineal {
         return true;
     }
     
-    public BusquedaResultado buscarLineal(int clave) {
+    public BusquedaResultado buscarLineal(String clave) {
         BusquedaResultado resultado = new BusquedaResultado();
         
         for (int i = 0; i < claves.size(); i++) {
-            resultado.agregarPaso(i, claves.get(i), claves.get(i) == clave);
+            String actual = claves.get(i);
+            resultado.agregarPaso(i, actual, actual.equals(clave));
             
-            if (claves.get(i) == clave) {
+            if (actual.equals(clave)) {
                 resultado.setEncontrado(true);
                 resultado.setPosicion(i);
                 return resultado;
@@ -52,24 +53,24 @@ public class EstructuraLineal {
         return resultado;
     }
     
-    public BusquedaResultado buscarBinario(int clave) {
+    public BusquedaResultado buscarBinario(String clave) {
         BusquedaResultado resultado = new BusquedaResultado();
         int izquierda = 0;
         int derecha = claves.size() - 1;
         
         while (izquierda <= derecha) {
             int medio = izquierda + (derecha - izquierda) / 2;
-            int valorMedio = claves.get(medio);
+            String valorMedio = claves.get(medio);
             
             // Registrar paso
             resultado.agregarPasoBinario(izquierda, derecha, medio, valorMedio, 
-                                        clave == valorMedio, clave > valorMedio);
+                                        valorMedio.equals(clave), valorMedio.compareTo(clave) < 0);
             
-            if (valorMedio == clave) {
+            if (valorMedio.equals(clave)) {
                 resultado.setEncontrado(true);
                 resultado.setPosicion(medio);
                 return resultado;
-            } else if (clave > valorMedio) {
+            } else if (valorMedio.compareTo(clave) < 0) {
                 izquierda = medio + 1;
             } else {
                 derecha = medio - 1;
@@ -80,9 +81,9 @@ public class EstructuraLineal {
         return resultado;
     }
     
-    public boolean eliminar(int clave) {
+    public boolean eliminar(String clave) {
         for (int i = 0; i < claves.size(); i++) {
-            if (claves.get(i) == clave) {
+            if (claves.get(i).equals(clave)) {
                 claves.remove(i);
                 return true;
             }
@@ -94,7 +95,7 @@ public class EstructuraLineal {
         claves.clear();
     }
     
-    public List<Integer> getClaves() {
+    public List<String> getClaves() {
         return claves;
     }
     

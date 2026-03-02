@@ -17,11 +17,64 @@
     <!-- ====== MENÚ ====== -->
     <nav class="navbar">
         <ul class="menu">
-            <li><a href="#" class="menu-item" data-estructura="lineal">Lineal</a></li>
-            <li><a href="#" class="menu-item" data-estructura="binaria">Binaria</a></li>
-            <li><a href="#" class="menu-item" data-estructura="arboles-digitales">Árboles Digitales</a></li>
-            <li><a href="#" class="menu-item" data-estructura="tries-residuos">Tries por Residuos</a></li>
-            <li><a href="#" class="menu-item" data-estructura="tries-residuos-multiples">Tries por Residuos Múltiples</a></li>
+            <li class="dropdown">
+                <a href="#">Búsquedas internas</a>
+                <ul class="submenu">
+                    <li class="dropdown">
+                        <a href="#">Algoritmos de búsqueda</a>
+                        <ul class="submenu">
+                            <li><a href="#" class="menu-item" data-estructura="lineal">Búsqueda Lineal</a></li>
+                            <li><a href="#" class="menu-item" data-estructura="binaria">Búsqueda Binaria</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#">Funciones hash</a>
+                        <ul class="submenu">
+                            <li><a href="#" class="menu-item" data-estructura="hash" data-alg="mod">Hash mod</a></li>
+                            <li><a href="#" class="menu-item" data-estructura="hash" data-alg="cuadrado">Hash cuadrado</a></li>
+                            <li><a href="#" class="menu-item" data-estructura="hash" data-alg="plegamiento">Hash plegamiento</a></li>
+                            <li><a href="#" class="menu-item" data-estructura="hash" data-alg="truncamiento">Hash truncamiento</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#">Búsquedas externas</a>
+                <ul class="submenu">
+                    <li class="dropdown">
+                        <a href="#">Algoritmos de búsqueda por bloques</a>
+                        <ul class="submenu">
+                            <li><a href="#" class="menu-item" data-feature="lineal-bloques">Búsqueda Lineal por Bloques</a></li>
+                            <li><a href="#" class="menu-item" data-feature="binaria-bloques">Búsqueda Binaria por Bloques</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#">Funciones hash por bloques</a>
+                        <ul class="submenu">
+                            <li><a href="#" class="menu-item" data-feature="hash-mod-bloques">Hash mod por Bloques</a></li>
+                            <li><a href="#" class="menu-item" data-feature="hash-cuadrado-bloques">Hash cuadrado por Bloques</a></li>
+                            <li><a href="#" class="menu-item" data-feature="hash-plegamiento-bloques">Hash plegamiento por Bloques</a></li>
+                            <li><a href="#" class="menu-item" data-feature="hash-truncamiento-bloques">Hash truncamiento por Bloques</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#">Árboles</a>
+                <ul class="submenu">
+                    <li><a href="#" class="menu-item" data-estructura="arboles-digitales">Árboles Digitales</a></li>
+                    <li><a href="#" class="menu-item" data-estructura="tries-residuos">Árboles por Residuos</a></li>
+                    <li><a href="#" class="menu-item" data-estructura="tries-residuos-multiples">Árboles por Residuos Múltiples</a></li>
+                    <li><a href="#" class="menu-item" data-feature="huffman">Árbol de Huffman</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#">Estructuras dinámicas</a>
+                <ul class="submenu">
+                    <li><a href="#" class="menu-item" data-feature="expansion-total">Expansión Total</a></li>
+                    <li><a href="#" class="menu-item" data-feature="expansion-parcial">Expansión Parcial</a></li>
+                </ul>
+            </li>
         </ul>
     </nav>
 </div>
@@ -94,7 +147,34 @@
     const opcionesContenedor = document.getElementById('opciones-contenedor');
     const sidebarOptions = document.querySelectorAll('.sidebar-option');
 
+    // helper to show placeholder for unsupported options
+    function showFeaturePlaceholder(text) {
+        comentarioTexto.textContent = `⏳ Funcionalidad "${text}" aún no disponible`;
+        // keep workspace hidden
+        contenidoInicial.style.display = 'block';
+        contenedorTrabajo.classList.remove('show');
+        estructuraActual = null;
+    }
+
+    // estado global de la estructura (servidor) para uso en visualización / validaciones
     let estructuraActual = null;
+let hashAlg = null; // algoritmo hash seleccionado cuando estructuraActual === 'hash'
+    let tamanoClaves = 0;
+
+    // helpers para comentarios/logs
+    function setComentario(text) {
+        comentarioTexto.innerHTML = text;
+    }
+    function log(text) {
+        console.log(text);
+        // agregar con salto de línea, cuidando no borrar mensaje principal si ya hay uno
+        comentarioTexto.innerHTML += '<br>' + text;
+    }
+    function procesarLogs(data) {
+        if (data.logs && Array.isArray(data.logs)) {
+            data.logs.forEach(l => log(l));
+        }
+    }
 
     const estructuraNames = {
         'lineal': 'Estructura Lineal',
@@ -104,25 +184,78 @@
         'tries-residuos-multiples': 'Tries por Residuos Múltiples'
     };
 
-    const estructurasConPanel = ['lineal', 'binaria'];
+    const estructurasConPanel = ['lineal', 'binaria', 'hash'];
 
-    // Evento para items del menú principal
+    // cualquier estructura que termine en '-bloques' también muestra panel lateral
+    function esEstructuraConPanel(estructura) {
+        return estructurasConPanel.includes(estructura) || (estructura && estructura.endsWith('-bloques'));    
+    }
+
+    // Evento para items del menú principal (ahora con menú jerárquico)
     menuItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', async function(e) {
             e.preventDefault();
-            const estructura = this.getAttribute('data-estructura');
-            sidebarTitle.textContent = estructuraNames[estructura];
-            estructuraActual = estructura;
+            const estructura = this.dataset.estructura;
+            const feature = this.dataset.feature;
+            const text = this.textContent.trim();
+            // limpiar estructura previa en servidor para evitar cruce de estados
+            if (estructura || feature) {
+                try {
+                    await fetch('/api/estructura/eliminar-estructura', { method: 'POST' });
+                } catch (_) {
+                    // ignore errors
+                }
+            }
 
-            // Mostrar u ocultar el contenedor de trabajo
-            if (estructurasConPanel.includes(estructura)) {
-                contenidoInicial.style.display = 'none';
-                contenedorTrabajo.classList.add('show');
-                comentarioTexto.textContent = `${estructuraNames[estructura]} cargada. Selecciona una acción del menú lateral.`;
-                opcionesContenedor.innerHTML = ''; // Limpiar opciones
+            if (estructura) {
+                // handle hash specially
+                if (estructura === 'hash') {
+                    hashAlg = this.dataset.alg;
+                    sidebarTitle.textContent = `Hash (${hashAlg})`;
+                } else {
+                    sidebarTitle.textContent = estructuraNames[estructura] || text;
+                }
+                estructuraActual = estructura;
+
+                // cuando cambiamos de estructura, limpiamos estado previo
+                tamanoMaximo = 0;
+                tamanoClaves = 0;
+                hashAlg = (estructura === 'hash') ? hashAlg : null;
+                opcionesContenedor.innerHTML = '';
+                document.getElementById('estructura-canvas').innerHTML = '';
+
+                // Mostrar u ocultar el contenedor de trabajo
+                if (esEstructuraConPanel(estructura)) {
+                    contenidoInicial.style.display = 'none';
+                    contenedorTrabajo.classList.add('show');
+                    comentarioTexto.textContent = `${sidebarTitle.textContent} cargada. Selecciona una acción del menú lateral.`;
+                } else {
+                    contenidoInicial.style.display = 'block';
+                    contenedorTrabajo.classList.remove('show');
+                }
+            } else if (feature) {
+                // treat external search methods as estructuras independientes
+                const isExternal = feature === 'lineal-bloques' || feature === 'binaria-bloques'
+                                   || (feature.startsWith('hash-') && feature.endsWith('-bloques'));
+                if (isExternal) {
+                    estructuraActual = feature;
+                    sidebarTitle.textContent = text;
+
+                    // reset state
+                    tamanoMaximo = 0;
+                    tamanoClaves = 0;
+                    hashAlg = null;
+                    opcionesContenedor.innerHTML = '';
+                    document.getElementById('estructura-canvas').innerHTML = '';
+
+                    contenidoInicial.style.display = 'none';
+                    contenedorTrabajo.classList.add('show');
+                    comentarioTexto.textContent = `${sidebarTitle.textContent} seleccionada. Usa el menú lateral para Crear/Insertar/Buscar/Eliminar.`;
+                } else {
+                    showFeaturePlaceholder(text);
+                }
             } else {
-                contenidoInicial.style.display = 'block';
-                contenedorTrabajo.classList.remove('show');
+                // item without data attributes (maybe parent menus) ignore
             }
         });
     });
@@ -133,8 +266,8 @@
             e.preventDefault();
             const accion = this.textContent.trim();
 
-            if (!estructuraActual || !estructurasConPanel.includes(estructuraActual)) {
-                alert('Por favor selecciona una estructura (Lineal o Binaria) primero');
+            if (!estructuraActual || !esEstructuraConPanel(estructuraActual)) {
+                alert('Por favor selecciona primero un método válido (interno o de bloques) en el menú superior');
                 return;
             }
 
@@ -167,6 +300,24 @@
 
     // Función para mostrar formulario de Crear
     function mostrarFormularioCrear() {
+        let extra = '';
+        // si es algún tipo de bloque, pedir número de bloques
+        if (estructuraActual && estructuraActual.endsWith('-bloques')) {
+            extra += `
+            <div class="form-group">
+                <label for="num-bloques">Número de Bloques</label>
+                <input type="number" id="num-bloques" placeholder="Ej: 3" min="1">
+            </div>`;
+        }
+        // si es hash interno o externo, pedir módulo opcional
+        if (estructuraActual && (estructuraActual === 'hash' || estructuraActual.startsWith('hash-')) ) {
+            extra += `
+            <div class="form-group">
+                <label for="modulo-hash">Módulo para hash (opcional)</label>
+                <input type="number" id="modulo-hash" placeholder="Si no se indica se usa tamaño" min="1">
+            </div>`;
+        }
+
         opcionesContenedor.innerHTML = `
             <div class="form-group">
                 <label for="tamano-arreglo">Tamaño del Arreglo</label>
@@ -191,43 +342,64 @@
                     </div>
                 </div>
             </div>
-
+            ${extra}
             <button class="btn-accion" id="btn-crear">Crear Estructura</button>
         `;
 
         document.getElementById('btn-crear').addEventListener('click', async function() {
             const tamanoArreglo = document.getElementById('tamano-arreglo').value;
-            const tamanoClaves = document.getElementById('tamano-claves').value;
+            let localTamanoClaves = document.getElementById('tamano-claves').value; // nombre distinto para no chocar con variable global
             const tipeLimite = document.querySelector('input[name="limite"]:checked').value;
 
-            if (!tamanoArreglo || !tamanoClaves) {
-                comentarioTexto.textContent = '❌ Por favor completa todos los campos';
+            if (!tamanoArreglo || !localTamanoClaves) {
+                setComentario('❌ Por favor completa todos los campos');
                 return;
             }
 
-            comentarioTexto.textContent = '⏳ Creando estructura...';
+            setComentario('⏳ Creando estructura...');
             
             try {
-                const response = await fetch(`/api/estructura/crear?tipo=${estructuraActual}&tamano=${tamanoArreglo}&tamanoClaves=${tamanoClaves}&tipeLimite=${tipeLimite}`, {
+                let url = `/api/estructura/crear?tipo=${estructuraActual}&tamano=${tamanoArreglo}&tamanoClaves=${localTamanoClaves}&tipeLimite=${tipeLimite}`;
+                if (estructuraActual.endsWith('-bloques')) {
+                    const nb = document.getElementById('num-bloques').value;
+                    if (nb) url += `&numBloques=${encodeURIComponent(nb)}`;
+                }
+                if ((estructuraActual === 'hash' || estructuraActual.startsWith('hash-'))) {
+                    const mod = document.getElementById('modulo-hash')?.value;
+                    if (mod) {
+                        url += `&modulo=${encodeURIComponent(mod)}`;
+                    }
+                }
+                // internal hash algo is determined elsewhere (sidebar); external hash type already encoded in estructuraActual
+                if (estructuraActual === 'hash' && hashAlg) {
+                    url += `&alg=${encodeURIComponent(hashAlg)}`;
+                }
+
+                const response = await fetch(url, {
                     method: 'POST'
                 });
                 
                 const data = await response.json();
                 
                 if (data.exito) {
-                    comentarioTexto.textContent = `✅ ${data.mensaje}`;
+                    setComentario(`✅ ${data.mensaje}`);
+                    // guardar tamaños para visualización futura
+                    tamanoMaximo = data.tamano || tamanoMaximo;
+                    tamanoClaves = data.tamanoClaves || tamanoClaves; // actualización global
                     visualizarEstructura(data.claves);
+                    procesarLogs(data);
                     document.getElementById('estructura-canvas').innerHTML += `
-                        <button class="btn-accion btn-secundario" id="btn-limpiar" style="margin-top: 10px; background: #ff6b6b;">
+                        <button class="btn-accion btn-secundario" id="btn-limpiar" style="margin-top: 10px; background: #dc3545;">
                             Limpiar y Crear Nueva
                         </button>
                     `;
                     document.getElementById('btn-limpiar').addEventListener('click', eliminarEstructura);
                 } else {
-                    comentarioTexto.textContent = `❌ ${data.mensaje}`;
+                    setComentario(`❌ ${data.mensaje}`);
+                    procesarLogs(data);
                 }
             } catch (error) {
-                comentarioTexto.textContent = '❌ Error de conexión: ' + error.message;
+                setComentario('❌ Error de conexión: ' + error.message);
             }
         });
     }
@@ -237,21 +409,30 @@
         opcionesContenedor.innerHTML = `
             <div class="form-group">
                 <label for="valor-insertar">Valor a Insertar</label>
-                <input type="number" id="valor-insertar" placeholder="Ingresa el valor">
+                <input type="text" id="valor-insertar" placeholder="Ingresa el valor">
             </div>
 
             <button class="btn-accion" id="btn-insertar">Insertar</button>
+            <button class="btn-accion btn-secundario" id="btn-repetir-insertar" style="background: #17a2b8; display: none; margin-top:10px;">
+                🔄 Repetir Animación
+            </button>
         `;
+        let ultimosResultados = null;
 
+        const btnRepetirInsertar = document.getElementById('btn-repetir-insertar');
         document.getElementById('btn-insertar').addEventListener('click', async function() {
             const valor = document.getElementById('valor-insertar').value;
             if (!valor) {
-                comentarioTexto.textContent = '❌ Por favor ingresa un valor';
+                setComentario('❌ Por favor ingresa un valor');
+                return;
+            }
+            // validar longitud de clave en cliente también
+            if (tamanoClaves && valor.length !== tamanoClaves) {
+                setComentario(`❌ La clave debe tener exactamente ${tamanoClaves} caracteres`);
                 return;
             }
 
-            comentarioTexto.textContent = '⏳ Insertando clave...';
-            
+            setComentario('⏳ Insertando clave...');
             try {
                 const response = await fetch(`/api/estructura/insertar?clave=${valor}`, {
                     method: 'POST'
@@ -260,28 +441,74 @@
                 const data = await response.json();
                 
                 if (data.exito) {
-                    comentarioTexto.textContent = `✅ ${data.mensaje}`;
-                    visualizarEstructura(data.claves);
+                    setComentario(`✅ ${data.mensaje}`);
+                    procesarLogs(data);
+                    ultimosResultados = data;
+                    // si hay pasos de animación, muéstrala
+                    if (data.pasos && data.pasos.length > 0) {
+                        mostrarAnimacionBusqueda(data);
+                        btnRepetirInsertar.style.display = 'block';
+                    } else {
+                        visualizarEstructura(data.claves);
+                    }
                     document.getElementById('valor-insertar').value = '';
                 } else {
-                    comentarioTexto.textContent = `❌ ${data.mensaje}`;
+                    setComentario(`❌ ${data.mensaje}`);
+                    procesarLogs(data);
                 }
             } catch (error) {
-                comentarioTexto.textContent = '❌ Error de conexión: ' + error.message;
+                setComentario('❌ Error de conexión: ' + error.message);
+            }
+        });
+        btnRepetirInsertar.addEventListener('click', function() {
+            if (ultimosResultados) {
+                mostrarAnimacionBusqueda(ultimosResultados);
             }
         });
     }
 
+
     // Función para mostrar formulario de Buscar
     function mostrarFormularioBuscar() {
+        // campos extras según la estructura seleccionada
+        let extras = '';
+        if (estructuraActual && estructuraActual.endsWith('-bloques')) {
+            extras += `
+            <div class="form-group">
+                <label for="num-bloques">Número de Bloques</label>
+                <input type="number" id="num-bloques" placeholder="Ej: 3" min="1">
+            </div>
+
+            <div class="form-group">
+                <label>Método dentro del bloque</label>
+                <div class="radio-group">
+                    <div class="radio-wrapper">
+                        <input type="radio" id="busqueda-lineal-bloque" name="metodo-bloque" value="lineal" checked>
+                        <label for="busqueda-lineal-bloque">Lineal</label>
+                    </div>
+                    <div class="radio-wrapper">
+                        <input type="radio" id="busqueda-binaria-bloque" name="metodo-bloque" value="binaria">
+                        <label for="busqueda-binaria-bloque">Binaria</label>
+                    </div>
+                </div>
+            </div>`;
+        }
+        if (estructuraActual && estructuraActual.startsWith('hash-') && estructuraActual.endsWith('-bloques')) {
+            extras += `
+            <div class="form-group">
+                <label for="modulo-bloques">Módulo (opcional)</label>
+                <input type="number" id="modulo-bloques" placeholder="Si no se indica se usa tamaño" min="1">
+            </div>`;
+        }
+
         opcionesContenedor.innerHTML = `
             <div class="form-group">
                 <label for="valor-buscar">Valor a Buscar</label>
-                <input type="number" id="valor-buscar" placeholder="Ingresa el valor a buscar">
+                <input type="text" id="valor-buscar" placeholder="Ingresa el valor a buscar">
             </div>
-
+            ${extras}
             <button class="btn-accion" id="btn-buscar">Buscar</button>
-            <button class="btn-accion btn-secundario" id="btn-repetir" style="background: #9d4edd; display: none;">
+            <button class="btn-accion btn-secundario" id="btn-repetir" style="background: #17a2b8; display: none;">
                 🔄 Repetir Animación
             </button>
         `;
@@ -293,14 +520,31 @@
         btnBuscar.addEventListener('click', async function() {
             const valor = document.getElementById('valor-buscar').value;
             if (!valor) {
-                comentarioTexto.textContent = '❌ Por favor ingresa un valor';
+                setComentario('❌ Por favor ingresa un valor');
+                return;
+            }
+            if (tamanoClaves && valor.length !== tamanoClaves) {
+                setComentario(`❌ La clave debe tener exactamente ${tamanoClaves} caracteres`);
                 return;
             }
 
-            comentarioTexto.textContent = '⏳ Buscando...';
+            // gather extra params
+            let params = `clave=${encodeURIComponent(valor)}`;
+            if (estructuraActual && estructuraActual.endsWith('-bloques')) {
+                const nb = document.getElementById('num-bloques').value;
+                const bin = document.querySelector('input[name="metodo-bloque"]:checked').value === 'binaria';
+                if (nb) params += `&numBloques=${encodeURIComponent(nb)}`;
+                params += `&binarioEnBloque=${bin}`;
+            }
+            if (estructuraActual && estructuraActual.startsWith('hash-') && estructuraActual.endsWith('-bloques')) {
+                const mod = document.getElementById('modulo-bloques').value;
+                if (mod) params += `&modulo=${encodeURIComponent(mod)}`;
+            }
+
+            setComentario('⏳ Buscando...');
             
             try {
-                const response = await fetch(`/api/estructura/buscar?clave=${valor}`, {
+                const response = await fetch(`/api/estructura/buscar?${params}`, {
                     method: 'POST'
                 });
                 
@@ -311,18 +555,18 @@
                     btnRepetir.style.display = 'block';
                     
                     if (data.encontrado) {
-                        comentarioTexto.textContent = `✅ ${data.mensaje}`;
+                        setComentario(`✅ ${data.mensaje}`);
                     } else {
-                        comentarioTexto.textContent = `❌ ${data.mensaje}`;
+                        setComentario(`❌ ${data.mensaje}`);
                     }
                     
                     // Mostrar animación
                     mostrarAnimacionBusqueda(data);
                 } else {
-                    comentarioTexto.textContent = `❌ ${data.mensaje}`;
+                    setComentario(`❌ ${data.mensaje}`);
                 }
             } catch (error) {
-                comentarioTexto.textContent = '❌ Error de conexión: ' + error.message;
+                setComentario('❌ Error de conexión: ' + error.message);
             }
         });
 
@@ -333,29 +577,73 @@
         });
     }
 
-    // Función para mostrar animación de búsqueda
+    // Función para mostrar animación de búsqueda - COMPLETAMENTE REESCRITA PARA SOPORTAR BLOQUES
     async function mostrarAnimacionBusqueda(datos) {
         const canvas = document.getElementById('estructura-canvas');
-        let paso = 0;
-        const pasos = datos.pasos;
+        const pasos = datos.pasos || [];
+        const clavesAnim = datos.clavesAntes || datos.claves || [];
         
         if (pasos.length === 0) {
-            canvas.innerHTML = '<p style="color: #00d4ff;">No hay pasos para mostrar</p>';
+            canvas.innerHTML = '<p style="color: #007bff;">No hay pasos para mostrar</p>';
             return;
+        }
+        
+        // Detectar si se trata de una búsqueda por bloques o hash
+        const esBloque = pasos.some(p => p.tipo === 'bloque-scan' || p.etapaAlgoritmo === 'bloque_seleccion');
+        const esHash = pasos.some(p => p.tipo === 'hash' || p.etapaAlgoritmo === 'hash_calculo');
+        let numBloques = 1;
+        
+        if (esBloque) {
+            // Detectar número de bloques del primer paso de bloque
+            const primerPasoBloque = pasos.find(p => p.tipo === 'bloque-scan');
+            if (primerPasoBloque && primerPasoBloque.numBloque !== undefined) {
+                numBloques = Math.max(...pasos.filter(p => p.numBloque !== null && p.numBloque !== undefined).map(p => p.numBloque)) + 1;
+            }
         }
         
         const mostrarPaso = async (index) => {
             if (index >= pasos.length) {
-                // Última visualización
-                visualizarEstructuraConMarcado(datos.claves, datos.encontrado ? datos.posicion : -1, true);
+                // Última visualización - mostrar estructura final
+                const clavesFinales = datos.claves || clavesAnim;
+                if (esBloque) {
+                    visualizarBloques(clavesFinales, datos.numBloques || numBloques, -1, -1);
+                } else {
+                    visualizarEstructuraConMarcado(clavesFinales, datos.encontrado ? datos.posicion : -1, true);
+                }
+                // si tenemos lista después (eliminación), actualizamos
+                if (datos.clavesDespues) {
+                    await new Promise(r => setTimeout(r, 500));
+                    if (esBloque) {
+                        visualizarBloques(datos.clavesDespues, datos.numBloques || numBloques);
+                    } else {
+                        visualizarEstructura(datos.clavesDespues);
+                    }
+                }
                 return;
             }
-            
+
             const paso = pasos[index];
-            visualizarEstructuraConMarcado(datos.claves, paso.indiceActual || paso.medio, false);
             
-            comentarioTexto.innerHTML = obtenerTextoAnimacion(paso, paso.indiceActual || paso.medio, datos.pasos.length, index + 1);
-            
+            // Seleccionar visualización según tipo de paso
+            if (esBloque) {
+                // Para búsquedas por bloques
+                if (paso.tipo === 'bloque-scan') {
+                    // Marcar el bloque siendo escaneado
+                    visualizarBloques(clavesAnim, datos.numBloques || numBloques, paso.numBloque, paso.indiceActual);
+                } else if (paso.tipo === 'interno-bloque' || paso.tipo === 'interno-bloque-binaria') {
+                    // Mostrar elemento dentro del bloque
+                    visualizarBloques(clavesAnim, datos.numBloques || numBloques, paso.numBloque, paso.indiceActual);
+                } else if (paso.tipo === 'hash') {
+                    // Paso de cálculo de hash
+                    visualizarBloques(clavesAnim, datos.numBloques || numBloques, -1, -1);
+                }
+            } else {
+                // Búsqueda normal (lineal, binaria simple, hash-interno)
+                visualizarEstructuraConMarcado(clavesAnim, paso.indiceActual || paso.medio, false);
+            }
+
+            comentarioTexto.innerHTML = obtenerTextoAnimacion(paso, pasos, index, numBloques);
+
             await new Promise(resolve => setTimeout(resolve, 800));
             mostrarPaso(index + 1);
         };
@@ -363,69 +651,141 @@
         mostrarPaso(0);
     }
 
-    // Función para obtener texto de animación
-    function obtenerTextoAnimacion(paso, posicion, totalPasos, pasoActual) {
-        let texto = `Paso ${pasoActual}/${totalPasos}: `;
+    // NUEVA: Función para visualizar estructura en bloques
+    function visualizarBloques(claves, numBloques, bloqueResaltado, itemResaltado) {
+        const canvas = document.getElementById('estructura-canvas');
         
-        if (paso.tipo === "lineal") {
-            texto += `Comparando posición ${posicion} (valor: ${paso.valorActual})`;
-            if (paso.esCoincidencia) {
-                texto += " ✅ ¡Coincidencia encontrada!";
+        if (numBloques <= 0) numBloques = 1;
+        const totalItems = tamanoMaximo || claves.length || 0;
+        const blockSize = Math.ceil(totalItems / numBloques);
+        
+        let html = '<div class="bloques-contenedor" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 10px;">';
+        
+        for (let b = 0; b < numBloques; b++) {
+            const start = b * blockSize;
+            const end = Math.min(start + blockSize - 1, totalItems - 1);
+            
+            const esResaltado = b === bloqueResaltado;
+            const clasesBloque = esResaltado ? 'bloque-item bloque-resaltado' : 'bloque-item';
+            
+            html += `<div class="${clasesBloque}" style="border: 2px solid ${esResaltado ? '#007bff' : '#cccccc'}; border-radius: 8px; padding: 12px; background: ${esResaltado ? 'rgba(0, 123, 255, 0.1)' : '#f9f9f9'}; transition: all 0.3s ease;">`;
+            html += `<div style="font-weight: 600; font-size: 12px; color: #007bff; margin-bottom: 8px;">▶ Bloque ${b} [${start}...${end}]</div>`;
+            
+            for (let i = start; i <= end && i < totalItems; i++) {
+                const valor = i < claves.length ? claves[i] : '';
+                let claseItem = 'bloque-elemento';
+                
+                if (i === itemResaltado) {
+                    claseItem += ' elemento-marcado';
+                }
+                
+                html += `<div class="${claseItem}" style="padding: 6px; margin: 4px 0; background: ${i === itemResaltado ? 'rgba(0, 123, 255, 0.3)' : '#fff'}; border: 1px solid ${i === itemResaltado ? '#007bff' : '#ddd'}; border-radius: 4px; display: flex; gap: 8px; align-items: center; font-size: 12px; transition: all 0.3s ease;">
+                    <span style="font-weight: 600; color: #007bff; background: rgba(0,123,255,0.08); padding: 2px 6px; border-radius: 3px;">${i}</span>
+                    <span>${valor}</span>
+                </div>`;
             }
-        } else if (paso.tipo === "binaria") {
-            texto += `Búsqueda binaria - Rango [${paso.izquierda}, ${paso.derecha}], Medio: ${paso.medio} (valor: ${paso.valorActual})`;
+            
+            html += '</div>';
+        }
+        
+        html += '</div>';
+        canvas.innerHTML = html;
+    }
+
+    // ACTUALIZADA: Función para obtener texto de animación con manejo de bloques y hash
+    function obtenerTextoAnimacion(paso, pasos, indiceActual, numBloques) {
+        let texto = `<strong>Paso ${indiceActual + 1}/${pasos.length}:</strong> `;
+
+        if (paso.tipo === 'hash') {
+            // Mostrar cálculo de función hash
+            texto += `<br><strong>Cálculo Hash:</strong><br>`;
+            if (paso.formulaHash) {
+                texto += `<code style="background: #f0f0f0; padding: 4px 8px; border-radius: 3px;">${paso.formulaHash}</code><br>`;
+            }
+            texto += `Clave: <strong>${paso.valorActual}</strong> → Índice: <strong>${paso.indiceHashCalculado}</strong><br>`;
+            texto += `Bloque asignado: <strong>Bloque ${Math.floor(paso.indiceHashCalculado / numBloques)}</strong>`;
+        } else if (paso.tipo === 'bloque-scan') {
+            // Mostrar escaneo de bloque
+            const esBloqueFinal = paso.numBloque !== undefined;
+            const accion = indiceActual === 0 ? 'Iniciando búsqueda' : 'Examinando';
+            texto += `${accion} <strong>Bloque ${paso.numBloque}</strong> [${paso.bloqueInicio}...${paso.bloqueFinal}]<br>`;
+            texto += `Valor medio: <strong>${paso.valorActual}</strong>`;
+        } else if (paso.tipo === 'interno-bloque') {
+            // Búsqueda lineal dentro del bloque
+            texto += `<strong>Búsqueda Interna (Lineal)</strong> en Bloque ${paso.numBloque}<br>`;
+            texto += `Comparando posición ${paso.indiceActual}: <strong>${paso.valorActual}</strong>`;
             if (paso.esCoincidencia) {
-                texto += " ✅ ¡Coincidencia encontrada!";
+                texto += ` ✅ <strong style="color: #28a745;">¡ENCONTRADO!</strong>`;
+            }
+        } else if (paso.tipo === 'interno-bloque-binaria') {
+            // Búsqueda binaria dentro del bloque
+            texto += `<strong>Búsqueda Interna (Binaria)</strong> en Bloque ${paso.numBloque}<br>`;
+            texto += `Rango [${paso.izquierda}, ${paso.derecha}], Medio: ${paso.medio}<br>`;
+            texto += `Valor: <strong>${paso.valorActual}</strong>`;
+            if (paso.comparacionResultado) {
+                const comparacion = paso.comparacionResultado === 'menor' ? '&lt; (buscar izq)' : (paso.comparacionResultado === 'mayor' ? '&gt; (buscar der)' : '= ✅ ENCONTRADO');
+                texto += ` ${comparacion}`;
+            }
+        } else if (paso.tipo === 'lineal') {
+            // Búsqueda lineal simple
+            texto += `Comparando posición ${paso.indiceActual} (valor: <strong>${paso.valorActual}</strong>)`;
+            if (paso.esCoincidencia) {
+                texto += ` ✅ <strong style="color: #28a745;">¡ENCONTRADO!</strong>`;
+            }
+        } else if (paso.tipo === 'binaria') {
+            // Búsqueda binaria simple
+            texto += `Búsqueda Binaria - Rango [${paso.izquierda}, ${paso.derecha}], Medio: ${paso.medio}<br>`;
+            texto += `Valor: <strong>${paso.valorActual}</strong>`;
+            if (paso.esCoincidencia) {
+                texto += ` ✅ <strong style="color: #28a745;">¡ENCONTRADO!</strong>`;
             }
         }
         
         return texto;
     }
 
-    // Función para visualizar estructura con marcado
+    // Función para visualizar estructura con marcado (usando divs en lugar de tabla)
     function visualizarEstructuraConMarcado(claves, indiceMarcado, destacarCompleto) {
         const canvas = document.getElementById('estructura-canvas');
+        let html = '<div class="estructura-contenedor">';
         
-        let html = '<div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">';
+        // Usar tamanoMaximo o la longitud de claves si no está definido
+        const totalItems = tamanoMaximo || claves.length || 0;
         
-        claves.forEach((clave, index) => {
-            let estilo = 'background: rgba(0, 212, 255, 0.1); border: 2px solid rgba(0, 212, 255, 0.5);';
+        for (let i = 0; i < totalItems; i++) {
+            const valor = i < claves.length ? claves[i] : '';
+            let clases = 'estructura-item';
             
-            if (index === indiceMarcado && !destacarCompleto) {
-                estilo = 'background: rgba(255, 193, 7, 0.3); border: 3px solid #ffc107; transform: scale(1.1);';
-            } else if (destacarCompleto && index === indiceMarcado) {
-                estilo = 'background: rgba(76, 175, 80, 0.3); border: 3px solid #4caf50; transform: scale(1.1);';
+            // Agregar clases dinámicas según el estado
+            if (i === indiceMarcado && !destacarCompleto) {
+                clases += ' item-marcado';
+            }
+            if (destacarCompleto && i === indiceMarcado) {
+                clases += ' item-encontrado';
             }
             
-            html += `
-                <div style="
-                    padding: 12px 16px;
-                    ${estilo}
-                    border-radius: 6px;
-                    color: #00d4ff;
-                    font-weight: bold;
-                    transition: all 0.3s ease;
-                    min-width: 50px;
-                    text-align: center;
-                ">
-                    ${clave}
-                </div>
-            `;
-        });
+            html += `<div class="${clases}" data-index="${i}">
+                        <div class="posicion">${i}</div>
+                        <div class="clave">${valor}</div>
+                     </div>`;
+        }
         
         html += '</div>';
         canvas.innerHTML = html;
     }
 
-    // Función para visualizar estructura
+    // Función para visualizar estructura completa usando divs
     function visualizarEstructura(claves) {
-        const canvas = document.getElementById('estructura-canvas');
+        // Asegurar que tamanoMaximo está definido
+        if (!tamanoMaximo || tamanoMaximo === 0) {
+            tamanoMaximo = Math.max(claves.length, 5); // mínimo 5 espacios si no se envía desde backend
+        }
         visualizarEstructuraConMarcado(claves, -1, false);
     }
 
     // Función para eliminar estructura
     async function eliminarEstructura() {
-        comentarioTexto.textContent = '⏳ Eliminando estructura...';
+        setComentario('⏳ Eliminando estructura...');
         
         try {
             const response = await fetch('/api/estructura/eliminar-estructura', {
@@ -435,32 +795,64 @@
             const data = await response.json();
             
             if (data.exito) {
-                comentarioTexto.textContent = `✅ ${data.mensaje}`;
+                setComentario(`✅ ${data.mensaje}`);
+                procesarLogs(data);
                 opcionesContenedor.innerHTML = '';
                 document.getElementById('estructura-canvas').innerHTML = 
                     '<p style="color: rgba(212, 212, 212, 0.7);">Estructura eliminada. Selecciona "Crear" para empezar de nuevo.</p>';
             }
         } catch (error) {
-            comentarioTexto.textContent = '❌ Error: ' + error.message;
+            setComentario('❌ Error: ' + error.message);
         }
     }
 
     // Función para mostrar formulario de Eliminar
     function mostrarFormularioEliminar() {
+        // campos extras según estructura actual
+        let extras = '';
+        if (estructuraActual && estructuraActual.endsWith('-bloques')) {
+            extras += `
+            <div class="form-group">
+                <label for="num-bloques">Número de Bloques</label>
+                <input type="number" id="num-bloques" placeholder="Ej: 3" min="1">
+            </div>
+            <div class="form-group">
+                <label>Método dentro del bloque</label>
+                <div class="radio-group">
+                    <div class="radio-wrapper">
+                        <input type="radio" id="delete-lineal-bloque" name="metodo-bloque" value="lineal" checked>
+                        <label for="delete-lineal-bloque">Lineal</label>
+                    </div>
+                    <div class="radio-wrapper">
+                        <input type="radio" id="delete-binaria-bloque" name="metodo-bloque" value="binaria">
+                        <label for="delete-binaria-bloque">Binaria</label>
+                    </div>
+                </div>
+            </div>`;
+        }
+        if (estructuraActual && estructuraActual.startsWith('hash-') && estructuraActual.endsWith('-bloques')) {
+            extras += `
+            <div class="form-group">
+                <label for="modulo-bloques">Módulo (opcional)</label>
+                <input type="number" id="modulo-bloques" placeholder="Si no se indica se usa tamaño" min="1">
+            </div>`;
+        }
+
         opcionesContenedor.innerHTML = `
             <div class="form-group">
                 <label for="valor-eliminar">Valor a Eliminar</label>
-                <input type="number" id="valor-eliminar" placeholder="Ingresa el valor a eliminar">
+                <input type="text" id="valor-eliminar" placeholder="Ingresa el valor a eliminar">
             </div>
+            ${extras}
 
             <button class="btn-accion" id="btn-eliminar">Eliminar Clave</button>
-            <button class="btn-accion btn-secundario" id="btn-repetir-eliminar" style="background: #ff6b6b !important; display: none;">
+            <button class="btn-accion btn-secundario" id="btn-repetir-eliminar" style="background: #dc3545 !important; display: none;">
                 🔄 Repetir Animación
             </button>
 
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 212, 255, 0.2);">
-                <h4 style="color: #00d4ff; margin-top: 0;">Acciones Adicionales</h4>
-                <button class="btn-accion" id="btn-limpiar-estruc" style="background: #ff6b6b !important; width: 100%;">
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 123, 255, 0.2);">
+                <h4 style="color: #007bff; margin-top: 0;">Acciones Adicionales</h4>
+                <button class="btn-accion" id="btn-limpiar-estruc" style="background: #dc3545 !important; width: 100%;">
                     🗑️ Borrar Toda la Estructura
                 </button>
             </div>
@@ -474,14 +866,31 @@
         btnEliminar.addEventListener('click', async function() {
             const valor = document.getElementById('valor-eliminar').value;
             if (!valor) {
-                comentarioTexto.textContent = '❌ Por favor ingresa un valor';
+                setComentario('❌ Por favor ingresa un valor');
+                return;
+            }
+            if (tamanoClaves && valor.length !== tamanoClaves) {
+                setComentario(`❌ La clave debe tener exactamente ${tamanoClaves} caracteres`);
                 return;
             }
 
-            comentarioTexto.textContent = '⏳ Eliminando clave...';
+            // build params
+            let params = `clave=${encodeURIComponent(valor)}`;
+            if (estructuraActual && estructuraActual.endsWith('-bloques')) {
+                const nb = document.getElementById('num-bloques').value;
+                const bin = document.querySelector('input[name="metodo-bloque"]:checked').value === 'binaria';
+                if (nb) params += `&numBloques=${encodeURIComponent(nb)}`;
+                params += `&binarioEnBloque=${bin}`;
+            }
+            if (estructuraActual && estructuraActual.startsWith('hash-') && estructuraActual.endsWith('-bloques')) {
+                const mod = document.getElementById('modulo-bloques').value;
+                if (mod) params += `&modulo=${encodeURIComponent(mod)}`;
+            }
+
+            setComentario('⏳ Eliminando clave...');
             
             try {
-                const response = await fetch(`/api/estructura/eliminar?clave=${valor}`, {
+                const response = await fetch(`/api/estructura/eliminar?${params}`, {
                     method: 'POST'
                 });
                 
@@ -490,20 +899,22 @@
                 if (data.exito) {
                     ultimosResultados = data;
                     btnRepetirEliminar.style.display = 'block';
+                    procesarLogs(data);
                     
                     if (data.encontrado) {
-                        comentarioTexto.textContent = `✅ ${data.mensaje}`;
+                        log(`✅ ${data.mensaje}`);
                     } else {
-                        comentarioTexto.textContent = `❌ Clave no encontrada`;
+                        log(`❌ Clave no encontrada`);
                     }
                     
-                    // Mostrar animación
+                    // Mostrar animación con snapshot
                     mostrarAnimacionBusqueda(data);
                 } else {
-                    comentarioTexto.textContent = `❌ ${data.mensaje}`;
+                    setComentario(`❌ ${data.mensaje}`);
+                    procesarLogs(data);
                 }
             } catch (error) {
-                comentarioTexto.textContent = '❌ Error de conexión: ' + error.message;
+                setComentario('❌ Error de conexión: ' + error.message);
             }
         });
 
@@ -515,6 +926,7 @@
 
         btnLimpiar.addEventListener('click', eliminarEstructura);
     }
+
 </script>
 
 </body>
